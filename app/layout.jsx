@@ -1,5 +1,6 @@
-// kape/app/layout.jsx
+
 import "./globals.css";
+import AuthListener from "@/components/AuthListener";
 
 export const metadata = {
   title: "Kapé — Specialty Coffee",
@@ -17,7 +18,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        {/* ===== Header / Nav (from your index.html) ===== */}
+
         <header>
           <nav className="nav container" aria-label="Main">
             <div className="nav-left">
@@ -32,10 +33,13 @@ export default function RootLayout({ children }) {
           </nav>
         </header>
 
+        {/* Auth state sync (keeps session across pages/refresh) */}
+        <AuthListener />
+
         {/* Page content */}
         {children}
 
-        {/* ===== Footer (from your index.html) ===== */}
+
         <footer>
           <div className="container foot-grid">
             <div>

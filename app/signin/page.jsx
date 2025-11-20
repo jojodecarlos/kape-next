@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import { useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -13,10 +13,11 @@ export default function SignInPage() {
     const email = f.querySelector("#signin_email")?.value.trim();
     const password = f.querySelector("#signin_password")?.value || "";
 
+    const supabase = supabaseBrowser();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return alert(error.message);
 
-    // (If email confirmations are ON) create profile row if missing
+    // Ensure a profile row exists (email confirmation ON cases)
     if (data.session?.user) {
       const uid = data.session.user.id;
       const { data: exists } = await supabase.from("profiles").select("user_id").eq("user_id", uid).maybeSingle();
@@ -28,7 +29,7 @@ export default function SignInPage() {
 
   return (
     <main className="page-register">
-      <section className="hero hero--plain" style={{ minHeight: "40vh" }}>
+      <section className="hero" style={{ minHeight: "40vh" }}>
         <div className="container" style={{ maxWidth: "900px" }}>
           <h1>Sign in</h1>
           <p>Welcome back—sign in to manage your account and orders.</p>

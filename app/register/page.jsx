@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import { useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -10,8 +10,8 @@ export default function RegisterPage() {
   const onSubmit = useCallback(async (e) => {
     e.preventDefault();
     const f = e.currentTarget;
-
     const get = (id) => f.querySelector(`#${id}`);
+
     const email = get("email")?.value.trim();
     const password = get("password")?.value || "";
     const confirm = get("confirm_password")?.value || "";
@@ -19,7 +19,7 @@ export default function RegisterPage() {
     if (!email || !password) return alert("Email and password are required.");
     if (password !== confirm) return alert("Passwords do not match.");
 
-    // Sign up
+    const supabase = supabaseBrowser();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -27,7 +27,6 @@ export default function RegisterPage() {
     });
     if (error) return alert(error.message);
 
-    // If a session exists (email confirmation OFF), insert profile immediately
     if (data.session && data.user) {
       const payload = {
         user_id: data.user.id,
@@ -51,7 +50,7 @@ export default function RegisterPage() {
 
   return (
     <main className="page-register">
-      <section className="hero hero--plain" style={{ minHeight: "34vh" }}>
+      <section className="hero" style={{ minHeight: "34vh" }}>
         <div className="container" style={{ maxWidth: "900px" }}>
           <h1>Register</h1>
           <p>Get brew guides, product drops, and event updates.</p>
