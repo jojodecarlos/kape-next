@@ -1,14 +1,16 @@
+// middleware.js
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(req) {
   const res = NextResponse.next({ request: { headers: req.headers } });
 
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return res;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
+  try {
+    const supabase = createServerClient(url, key, {
       cookies: {
         get(name) {
           return req.cookies.get(name)?.value;
@@ -20,16 +22,16 @@ export async function middleware(req) {
           res.cookies.set({ name, value: "", ...options, maxAge: 0 });
         },
       },
-    }
-  );
+    });
 
-
-  await supabase.auth.getSession();
+    await supabase.auth.getSession(); // refresh session cookies
+  } catch {
+    // swallow — never crash the Edge runtime
+  }
 
   return res;
 }
 
-
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|Images|api/health).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|Images).*)"],
 };
