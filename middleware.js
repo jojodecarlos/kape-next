@@ -24,9 +24,8 @@ export async function middleware(req) {
       },
     });
 
-    await supabase.auth.getSession(); // refresh session cookies
+    await supabase.auth.getSession();
   } catch {
-    // swallow — never crash the Edge runtime
   }
 
   return res;
